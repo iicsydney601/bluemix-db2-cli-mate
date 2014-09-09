@@ -50,7 +50,9 @@ DB2climate uses Dropbox as persistent storage, therefore you will need to sign u
 
 3. Create a git clone of this repository ...
 
-        git clone https://hub.jazz.net/git/felixf/bluemix-db2-cli-mate
+        git clone https://github.com/iicsydney601/bluemix-db2-cli-mate.git
+                                  or 
+        git clone https://hub.jazz.net/git/felixf/bluemix-db2-cli-mate 
 
 4. Navigate to the clone application directory.  
    `cd bluemix-db2-cli-mate`
