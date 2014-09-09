@@ -1,0 +1,11 @@
+---
+# Application config file 
+applications:
+- disk_quota: 2048M
+  path: .
+  memory: 256M
+  instances: 1
+  domain: mybluemix.net
+  timeout: 180
+  buildpack: https://github.com/iicsydney601/heroku-buildpack-multi.git
+  
