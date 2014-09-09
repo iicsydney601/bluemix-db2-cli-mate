@@ -38,7 +38,7 @@ Before we begin, we first need to install the [**cf command line tool**](https:/
 
 DB2climate uses Dropbox as persistent storage, therefore you will need to sign up a Dropbox account from [dropbox](https://www.dropbox.com/).  In addition, if you plan to use Dropbox-api client to manage files between app container and Dropbox cloud storage (preferred method), you will need to create a Dropbox-api app through [https://www.dropbox.com/developers/apps](https://www.dropbox.com/developers/apps "https://www.dropbox.com/developers/apps"). Once your api app is created successfully, note down the **App Key** and **App secret**. 
 
-### Deploy to BlueMix cloud ###
+### Deploy to Bluemix cloud ###
 
 1. Login to Bluemix.
     `usage:    cf login [-a API_URL]`  
@@ -130,13 +130,12 @@ Warning: Prior attempting to make a ssh connection for the first time, make sure
 
 `{ ~ }  » ssh U67RHUFbnmx2gpD41JIaRLVxw@sf.tmate.io`  
                                                                                              `~ Permission denied (publickey).`  
-`{ ~ }  » ssh-keygen`  
-                                                                                                               ~ Generating public/private rsa key pair. 
+`{ ~ }  » ssh-keygen`    
+`Generating public/private rsa key pair.`    
 `Enter file in which to save the key (/home/felixf/.ssh/id_rsa):`  
-
 `Enter passphrase (empty for no passphrase):`    
-`Enter same passphrase again:`    
-`Your identification has been saved in /home/felixf/.ssh/id_rsa.`    
+`Enter same passphrase again:`  
+`Your identification has been saved in /home/felixf/.ssh/id_rsa.`      
 `Your public key has been saved in /home/felixf/.ssh/id_rsa.pub.`  
 `The key fingerprint is:`  
 `ec:15:74:51:48:03:68:bb:e2:e1:eb:e9:e0:37:ae:e6 felixf@IBM-PK19GZM`  
