@@ -44,7 +44,7 @@ DB2climate uses Dropbox as persistent storage, therefore you will need to sign u
     `usage:    cf login [-a API_URL]`  
     `example:  cf login -a https://api.ng.bluemix.net`        
 
-2. Create an instance of the sqldb service.
+2. Create an instance of the sqldb service.  
    `usage:    cf create-service SERVICE PLAN SERVICE_INSTANCE_NAME`  
    `example:  cf create-service sqldb sqldb_small SQLDB_001`     
 
