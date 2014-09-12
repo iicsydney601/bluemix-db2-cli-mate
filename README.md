@@ -261,16 +261,17 @@ Example 2:  `$ ls_tables.rb SQLDB_002 BX` (multi db instances bound to the app)
 
 ### Export and Import Table scripts ###
 
-Sript Name: export_table.rb
-Purpose: export a table in all supported format (ixf or del). Output file is the name of table with export_format as extension  
+Sript Name: export_table.rb  
+Purpose: export a table in all supported format (ixf or del).  
+Output file: the name of exported table with export format as extension  
 syntax:   `$   export_table.rb [db_name] schema_name table_Name export_format`    
 Example 1:  `$ export_table.rb BX country ixf`  (single db instance bound to the app)  
 Output file name is `country.ixf`  
 Example 2:  `$ export_table.rb SQLDB_002 BX CITY del` (multi db instances bound to the app)  
 Output file name is `CITY.del`
 
-Sript Name: import_table.rb
-Purpose: import a table in all supported format (ixf or del) and supported import_mode  
+Sript Name: import_table.rb  
+Purpose: import a table in all supported format (ixf or del) and all supported import mode  
 syntax:   `$   import_table.rb [db_name] schema_name table_file_name [import_mode]`  
 Supported Import mode are: `1=insert(default), 2=insert_update, 3=replace, 4=replace_create (ixf only), 5=create (ixf only)`    
 Example 1:  `$ import_table.rb BX country.ixf`(single db instance bound to the app and default insert mode)  
