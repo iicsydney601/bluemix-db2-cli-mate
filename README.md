@@ -212,7 +212,7 @@ To list all the files in our dropbox account, we would issue:
 
 ## Use DB2climate as a DB2 client   ##
 
-You can run all supported db2 commands against your SQLDBs straight away after ssh into the warden container. All TCPIP nodes and databases would have automatically cataloged for you. In addition, in order to avoid users to keep referring to the VCAP_SERVICE file for db credentials, a number of scripts have been developed to provide better user experience. 
+You can run all supported db2 commands against your SQLDBs straight away after ssh into the warden container. All TCPIP nodes and databases would have automatically cataloged for you. In addition, in order to avoid users to keep referring to the VCAP_SERVICE file for db credentials, a number of scripts have been developed to help you manage your database(s) with ease. 
 
 Scrpt Name:	ls_db.rb  
 Purpose:	list all databases bound to the app and display their credentials.  
@@ -240,14 +240,45 @@ Purpose:   connect to database
 Syntax:     `$ connect_db.rb db_name` (where db_name is the instance name of your created SQLDB service)  
 Exampe:   `$ connect_db.rb SQLDB_001`
 
-
 Script Name: gen_dbSchema.rb  
-Purpose:   generate database schema   
-Syntax:    `$  gen_dbSchema.rb database_db_name  schema_name `   
-Example: `$  gen_dbSchema.rb SQLDB_001 BX`  
+Purpose:   generate a database schema 
+Syntax:    `$  gen_dbSchema.rb [database_db_name] schema_name `   
+Example 1: `$  gen_dbSchema.rb BX`  (single db instance bound to the app)  
+Example 2: `$  gen_dbSchema.rb SQLDB_002 BX` (multi db instances bound to the app)  
 
-### Backup and Restore DB scripts ###
-Unfortunately,  we are not able to run **db2 backup** or **db2 restore** with db2climate.  This is because the default user does not have enough authority to perform backup and restore as the `db2 get authorization` command tells all.
+
+Script Name: cr_sample_tables.rb  
+Purpose:  Crate and populate two sample tables for testing export/import scripts  
+syntax:   `$  cr_sample_tables.rb db_Name`  
+Example:  `$ cr_sampletables.rb SQLDB_001`  
+
+Script Name: ls_tables.rb  
+Purpose:  List all tables of given schema name   
+syntax:   `$  ls_tables.rb [db_name] schema_name`  
+Example 1:  `$ ls_tables.rb BX`  (single db instance bound to the app)    
+Example 2:  `$ ls_tables.rb SQLDB_002 BX` (multi db instances bound to the app)
+
+
+### Export and Import Table scripts ###
+
+Sript Name: export_table.rb
+Purpose: export a table in all supported format (ixf or del). Output file is the name of table with export_format as extension  
+syntax:   `$   export_table.rb [db_name] schema_name table_Name export_format`    
+Example 1:  `$ export_table.rb BX country ixf`  (single db instance bound to the app)  
+Output file name is `country.ixf`  
+Example 2:  `$ export_table.rb SQLDB_002 BX CITY del` (multi db instances bound to the app)  
+Output file name is `CITY.del`
+
+Sript Name: import_table.rb
+Purpose: import a table in all supported format (ixf or del) and supported import_mode  
+syntax:   `$   import_table.rb [db_name] schema_name table_file_name [import_mode]`  
+Supported Import mode are: `1=insert(default), 2=insert_update, 3=replace, 4=replace_create (ixf only), 5=create (ixf only)`    
+Example 1:  `$ import_table.rb BX country.ixf`(single db instance bound to the app and default insert mode)  
+Example 2:  `$  import_table.rb SQLDB_002 BX country.ixf 2` (multi db instances bound to the app and insert_update mode)  
+  
+
+### Backup and Restore Database scripts ###
+Unfortunately,  we are not able to run **db2 backup** or **db2 restore** utility with db2climate.  This is because the default user does not have enough authority to perform backup and restore as the `db2 get authorization` command tells all.
 
     vcap@182b9k5hdli:~$ db2 get authorizations  
     
