@@ -1,11 +1,11 @@
 #!/home/vcap/app/bin/ruby
 require 'rubygems'
 require 'json'
-
 db_found=0
+script_name=File.basename(__FILE__)
+db2_serviceName = "sqldb"
 db_name=""
 schema_name=""
-db2_serviceName = "sqldb"
 app_port = ENV['VCAP_APP_PORT']
 jsondb_app = JSON.parse(ENV['VCAP_APPLICATION'])
 json_db2 = JSON.parse(ENV['VCAP_SERVICES'])[db2_serviceName]
@@ -53,18 +53,19 @@ if (total_db2_services > 1 || ARGV.length > 1)  # more than  one SQLDBs bound to
   end 
 end 
 
+
 if (db_found==1)
-  system("db2look -d #{database} -e -z #{schema_name} -i #{username} -w #{password} -o #{db_name}")
+  system("db2 connect to #{database} user #{username} using #{password};db2 'list tables for schema #{schema_name}'")
 else
-  print("\nError! db_name not found\n\n")
-  exit 1
-end 
+  abort("\nError! db_name not found\n\n")
+end
+
 
 BEGIN {
 def usage()
   script_name=File.basename(__FILE__)
   print "\nsyntax: #{script_name} [db_name] schema_name\n"
-  print "db_name => only required if more than one SQLDB instances bound to the app\n\n"
+  print "db_name:    required if more than one dbs bound to the app\n"
   exit (1)
 end 
 }
