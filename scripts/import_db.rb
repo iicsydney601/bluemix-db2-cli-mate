@@ -4,9 +4,14 @@ require 'json'
 
 db_found=0
 script_name=File.basename(__FILE__)
-db_name=ARGV[0] || abort("syntax: #{script_name} db_Name db_backup_tar_file")
-backup_file=ARGV[1] || abort("syntax: #{script_name} db_Name db_backup_tar_file")
-backup_db_name=backup_file[0..-8] #removes .tar.gz from the name
+db_name=ARGV[0] || abort("syntax: #{script_name} db_Name db_backup_tar_gz_file")
+backup_file=ARGV[1] || abort("syntax: #{script_name} db_Name db_backup_tar_gz_file")
+backup_db_name=File.basename(backup_file)[0..-8] #removes .tar.gz from the name
+
+if File.file?(backup_file)==false 
+  abort("Error! File name #{backup_file} not found")
+end 
+backup_file_base_name=File.basename(backup_file)
 
 db2_serviceName = "sqldb"
 json_db2 = JSON.parse(ENV['VCAP_SERVICES'])[db2_serviceName]
@@ -28,7 +33,7 @@ end
 
 if (db_found==1)
   system("cp #{backup_file} /home/vcap/app")
-  system("cd /app\; tar xvfz #{backup_file}")
+  system("cd /app\; tar xvfz #{backup_file_base_name}")
   system("cd /app/#{backup_db_name}\; db2move #{database} import -u #{username} -p #{password} ")
 else
   puts("\nError! db_name not found\n\n")

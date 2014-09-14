@@ -20,17 +20,12 @@ elsif (ARGV.length == 3 && total_db2_services==1)
   schema_name=ARGV[0]
   table_file_name=ARGV[1]
   import_mode_index=ARGV[2]
-elsif (ARGV.length == 4 && total_db2_services==1) 
-  db_name=ARGV[0]
-  schema_name=ARGV[1]
-  table_file_name=ARGV[2]
-  import_mode_index=ARGV[3]
 elsif (ARGV.length < 3 && total_db2_services >1) 
   print ("\nMore than 1 db detected, you must specify db_name as first parameter\n")
   usage()
 end
 
-if (ARGV.length >= 3 && total_db2_services > 1)
+if (ARGV.length >= 3)
   db_name=ARGV[0]   
   schema_name=ARGV[1] 
   table_file_name=ARGV[2]
@@ -48,6 +43,10 @@ when 4
   import_mode="replace_create"
 when 5
   import_mode="create"
+end 
+
+if File.file?(table_file_name)==false 
+  abort("Error! File name #{table_file_name} not found")
 end 
 
 if (total_db2_services == 1 && ARGV.length >=2)  # only one SQLDB bound to the app
@@ -80,14 +79,15 @@ if (db_found !=1)
   abort("\nError! db_name not found\n\n")
 end
 
-pos=table_file_name.index('.')
-import_format= table_file_name[pos+1..-1]
+file_base_name=File.basename(table_file_name)
+pos=file_base_name.index('.')
+import_format= file_base_name[pos+1..-1]
 if (import_format == "csv") 
   import_format="del"
 end 
  
-table_name=table_file_name[0..pos-1]
-puts("db_name is #{db_name},  schema_name is #{schema_name},  table_name is #{table_name},  Import_format is #{import_format},  import_mode is #{import_mode}")
+table_name=file_base_name[0..pos-1]
+system("db_name is #{db_name},  schema_name is #{schema_name},  table_name is #{table_name},  Import_format is #{import_format},  import_mode is #{import_mode}")
 
 if (import_format != "del" && import_format != "ixf")
   abort('supported import_format is "ixf" or "del" ')

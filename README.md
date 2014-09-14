@@ -27,7 +27,7 @@ Current Bluemix SQLDB Managed Data Web Console suffers a number of limitations.
 5. Not able to sync data to SQLDB (Bluemix restriction)
 [https://developer.ibm.com/answers/questions/20958/sync-data-to-bluemix-sqldb/](https://developer.ibm.com/answers/questions/20958/sync-data-to-bluemix-sqldb/)
 
-DB2climate is an attempt to address all of the above issues. It allows you to open a ssh connection to the application container which has DB2 runtime client, Dropbox CLI and API client preloaded and configured, therefore you can run all supported db2 commands against your SQLDBs and move data in and out of Bluemix using Dropbox cloud storage. 
+DB2climate is designed to address these issues. It allows you to open a ssh connection to the application container which has DB2 runtime client, Dropbox CLI and API client preloaded and configured, therefore you can run all supported db2 commands against your SQLDBs and move data in and out of Bluemix using Dropbox cloud storage. 
 
 ## Deploy DB2climate to Bluemix  ##
 
@@ -79,7 +79,7 @@ DB2climate uses Dropbox as persistent storage, therefore you will need to sign u
    `usage:   cf start APP`    
    `example: cf start db2climate`
 
-Note: The starting process involves downloading and installing a number of packages. This includes Ruby runtime, DB2 v9.7 runtime client, Dropbox Linux client, Dropbox API client and tmate/tmux server. The whole package is about 400MB in size. It may takes few minutes before the application fully up and running. It is normal to see multiple instances of messages "`0 of 1 instances running, 1 starting`" showing on your screen. Please be patient.
+Note: The starting process involves downloading and installing a number of packages. This includes Ruby runtime, DB2 v9.7 runtime client, Dropbox Linux client, Dropbox API client and tmate/tmux server. The whole package is nearly 400MB in size and it may take few minutes before the application fully up and running. It is normal to see multiple instances of messages "`0 of 1 instances running, 1 starting`" showing on your screen. Please be patient.
 
     Using release configuration from last framework (Ruby/Rack).
     -----> Uploading droplet (455M)
@@ -107,10 +107,10 @@ Note: The starting process involves downloading and installing a number of packa
     #0   running   2014-09-09 05:38:20 PM   0.0%   52.9M of 256M   360.8M of 2G
 
 
-That's it! DB2climate has now successfully deployed to the bluemix cloud.
+That's it! DB2climate has now successfully deployed to the Bluemix cloud.
 
 
-## ssh into app container ##
+## ssh into DB2climate app container ##
 After the appliction is up and running, issue 
     
 `cf files db2climate logs/stderr.log`
@@ -126,10 +126,12 @@ The connection URL is at the last line of the log. The two "1000" are the height
 
 If you are using a Windows PC, you will need a cygwin like terminal program installed. I personally use **babun** windows shell which you can download it from [https://github.com/babun/babun](https://github.com/babun/babun) 
 
-Warning: Prior attempting to make a ssh connection for the first time, make sure you have run the **ssh-keygen** program at the home directory, otherwise, you will get connection denied error.
+Warning: Prior attempting to make a ssh connection for the very first time, make sure you run the **ssh-keygen** program at the home directory, otherwise, you will get connection denied error.
 
 `{ ~ }  » ssh U67RHUFbnmx2gpD41JIaRLVxw@sf.tmate.io`  
                                                                                              `~ Permission denied (publickey).`  
+
+Run ssh-keygen program at the home directory   
 `{ ~ }  » ssh-keygen`    
 `Generating public/private rsa key pair.`    
 `Enter file in which to save the key (/home/felixf/.ssh/id_rsa):`  
@@ -152,22 +154,19 @@ Warning: Prior attempting to make a ssh connection for the first time, make sure
 `|   oE**o         |`  
 `+-----------------+`  
 
+After running the “ssh-keygen” program, you can ssh into the app container without error.
+  
     { ~ }  »  ssh U67RHUFbnmx2gpD41JIaRLVxw@sf.tmate.io  
-
-    vcap@182bbgv126r:~$
-
-
-
-
-
+    vcap@182bbgv126r:~$`
 
 ## Setup Dropbox as non-ephemeral storage ##
 
-As Bluemix warden container does not support persistent storage at the moment. As a result, all changes written to the container disk are lost if the application is stopped or restarted.  Therefore, we need some kind of persistent storage so we can save our database backups or exports.  In this article, I will show you how to use Dropbox as our non-ephemeral storage to get your data in and out of Bluemix. This is not the best solution but until Bluemix supports SoftLayer's Object Storage, it is a decent workaround.
+As Bluemix warden container does not support persistent storage at the moment. As a result, all changes written to the container disk are lost if the application is stopped or restarted.  Therefore, we need some kind of persistent storage so we can store our database backups or exported tables.  In this article, I will show you how to use Dropbox as our non-ephemeral storage to get your data in and out of Bluemix. This is not the best solution but until Bluemix supports SoftLayer's Object Storage, it remains a decent workaround.
 
 DB2climate supports two methods to access the Dropbox cloud storage. 
-### Method 1- Dropbox Linux client: (not recommended) ###
-DB2climate pre-installs a copy of Dropbox linux client. All you need to do is to start the Dropbox daemon and registers your client machine. You need to run the dropbox.py command twice, the 1st time is to start the daemon, the 2nd time to reveal the registration URL link. 
+### Method 1- Dropbox Linux client: (not preferred) ###
+DB2climate pre-installs a copy of Dropbox linux client. All you need to do is to start the Dropbox daemon and registers your client machine. You need to run the 
+"**dropbox.py start**" command twice, the 1st time is to start the daemon, the 2nd time to reveal the registration URL link. 
 
     vcap@182bbgv126r:~$ dropbox.py start
     Starting Dropbox...Done!
@@ -177,11 +176,11 @@ DB2climate pre-installs a copy of Dropbox linux client. All you need to do is to
     vcap@182bbgv126r:~$
 
 
-Copy and paste the registration URL into a browser and then sign into your Dropbox account to link this computer. (**Warning**: if you plan to use your existing Dropbox account which has more than 1.7GB of files in the cloud. Upon successful linking, synchronization will quickly fill up the local container’s free disk space which will cause the DB2climate application to restart automatically and all changes are lost.)
+Copy and paste the registration URL into a browser and then sign into your Dropbox account to link this computer. (**Warning**: if you plan to use your existing Dropbox account which has more than 1.7GB of files in the cloud, upon successful linking, synchronization will occur immediately and quickly fill up the local container’s free disk space causing the DB2climate application to restart automatically and all changes are lost.)
 
-Once you link the computer successfully, you would notice a "**DropBox**" folder created under the /app directory. 
+Once you link the computer successfully, you would notice a "**DropBox**" folder created under the **/app** directory and synchronization will immediately occur. You can check its sync status by issuing “**dropbox.py status**” command.
 
-Congratulations, you have just successfully setup a persistent storage to your application container. you can now transfer files in and out of our Bluemix containers with ease.
+Congratulations, you have just successfully setup a persistent storage to your application container. you can now transfer files in and out of our Bluemix containers with ease. Use “dropbox.py” script to control the Dropbox daemon such as start/stop and synchronization status.  
 
 ### Method 2- Dropbox API script (preferred method) ###
 DB2climate also come with a copy of Dropbox core API client installed. To use it, just run "**dropbox-api**" command. If you did not update the "`dropbox_api_keys.txt`" file before pushing the application, you will be prompted to enter the api keys. Next you need to select the appropriate "`Input Access Type`", you must match the input access type to your api app's "`Permission type`" when the app was created.  Then, cut and paste the URL on the screen to a browser; logon to your Dropbox account and click "`Allow`". Once you have done that, return to your ssh console and press enter to finish the setup.
@@ -201,7 +200,7 @@ DB2climate also come with a copy of Dropbox core API client installed. To use it
    
 
 
-Congratulations, you have just successfully link your app container to your Dropbox account. Run "`dropbox.api help`" to get a list of available commands. 
+Congratulations, you have just successfully link your app container to your Dropbox account. The advantage of using Dropbox API over Dropbox Linux client is that Dropbox API does not synchronize with cloud storage automatically therefore you are safe to use your existing Dropbox account. Run "`dropbox.api help`" to get a list of available commands. 
 For instance, to upload the local.tar file from the container to the Dropbox's root directory, we would issue: 
 
 	$ 	dropbox-api put local.tar dropbox:/ 
@@ -214,6 +213,7 @@ To list all the files in our dropbox account, we would issue:
 
 You can run all supported db2 commands against your SQLDBs straight away after ssh into the warden container. All TCPIP nodes and databases would have automatically cataloged for you. In addition, in order to avoid users to keep referring to the VCAP_SERVICE file for db credentials, a number of scripts have been developed to help you manage your database(s) with ease. 
 
+### General purpose scripts ###
 Scrpt Name:	ls_db.rb  
 Purpose:	list all databases bound to the app and display their credentials.  
 syntax:	 `$ ls_db.rb`
@@ -261,25 +261,25 @@ Example 2:  `$ ls_tables.rb SQLDB_002 BX` (multi db instances bound to the app)
 
 ### Export and Import Table scripts ###
 
-Sript Name: export_table.rb  
-Purpose: export a table in all supported format (ixf or del).  
+Script Name: export_table.rb  
+Purpose: export a table in supported format (ixf or del).  
 Output file: the name of exported table with export format as extension  
 syntax:   `$   export_table.rb [db_name] schema_name table_Name export_format`    
 Example 1:  `$ export_table.rb BX country ixf`  (single db instance bound to the app)  
-Output file name is `country.ixf`  
+Output file name is `country.ixf` in the current directory  
 Example 2:  `$ export_table.rb SQLDB_002 BX CITY del` (multi db instances bound to the app)  
-Output file name is `CITY.del`
+Output file name is `CITY.del` in the current directory
 
-Sript Name: import_table.rb  
-Purpose: import a table in all supported format (ixf or del) and all supported import mode  
+Script Name: import_table.rb  
+Purpose: import a table in supported formats (ixf or del) with all supported import mode  
 syntax:   `$   import_table.rb [db_name] schema_name table_file_name [import_mode]`  
 Supported Import mode are: `1=insert(default), 2=insert_update, 3=replace, 4=replace_create (ixf only), 5=create (ixf only)`    
-Example 1:  `$ import_table.rb BX country.ixf`(single db instance bound to the app and default insert mode)  
-Example 2:  `$  import_table.rb SQLDB_002 BX country.ixf 2` (multi db instances bound to the app and insert_update mode)  
+Example 1:  `$ import_table.rb BX country.ixf`(single db instance bound to the app with default insert mode)  
+Example 2:  `$  import_table.rb SQLDB_002 BX country.ixf 2` (multi db instances bound to the app with insert_update mode)  
   
 
 ### Backup and Restore Database scripts ###
-Unfortunately,  we are not able to run **db2 backup** or **db2 restore** utility with db2climate.  This is because the default user does not have enough authority to perform backup and restore as the `db2 get authorization` command tells all.
+Unfortunately,  we are not able to run the built-in **db2 backup** or **db2 restore** utility with db2climate.  This is because the default user does not have enough authority to perform backup and restore as the `db2 get authorization` command tells all.
 
     vcap@182b9k5hdli:~$ db2 get authorizations  
     
@@ -332,18 +332,22 @@ DB2 backup/restore utility requires an instance level authority such as SYSADM, 
     vcap@182b9k5hdli:~$  
 
 
-As a result, we need a workaround. The only workaround that I can think of was to use the db2move command which I used to use regularly to migrate databases from one OS to another. This command basically exports all tables out into ixf format so they can be imported back into a new database. It is fully automated and extremely easy to use. Please note that db2move does not come with db2 runtime client, it is available only on server editions. You can get a copy of db2 express-C free of charge from here [http://www-01.ibm.com/software/data/db2/express-c/download.html](http://www-01.ibm.com/software/data/db2/express-c/download.html) . As the application container allows a maximum of 2GB, it will take too much space from our container if we install a copy of DB2 express-C server. Luckily, we only need 3 files to get the db2move up and running. We will need db2move, db2common.bnd and db2move.bnd. By placing db2move in the sqllib/bin directory and 2 bnd files into the sqllib/bnd directory,  we will have a fully working db2move utility.   
-Note:  db2move is bundled in the db2climate application, so you don't need to do the above tasks.
-
+As a result, we need a workaround. The only workaround that I could think of was to use the db2move command which I used to use regularly to migrate databases from one OS to another. This command basically exports all tables out into ixf format so they can be imported back into a new database. It is fully automated and extremely easy to use. Please note that db2move does not come with db2 runtime client, it is available only on server editions. You can get a copy of db2 express-C free of charge from here [http://www-01.ibm.com/software/data/db2/express-c/download.html](http://www-01.ibm.com/software/data/db2/express-c/download.html) . As the Bluemix application container restricts to a maximum of 2GB in size, it will take too much space from our container if we are to install a copy of DB2 express-C server. Luckily, we only need 3 files to get the db2move up and running. We will need db2move, db2common.bnd and db2move.bnd. Place db2move in the sqllib/bin directory and 2 bnd files into the sqllib/bnd directory,  we will have a fully working db2move utility.   
+Note: db2move utility has been packaged with the DB2climate application, so you don't need to do the above tasks.  
+ 
 Script Name: export_db.rb  
 Purpose: export all database tables in ixf format using db2move export command  
+Output fie: db_name with .tar.gz extension in the current directory   
 Syntax:    `$  export_db.rb db_name`    
 Exampe:  `$  export_db.rb SQLDB_001`  
+Sample output: `$  SQLDB_001.tar.gz`  
+
 
 Script Name:  import_db.rb script    
-Purpose: import all database tables using db2move import command  
-Syntax:    `$  import_db.rb  db_name  db_backup_tar_file_name`   
-Example: `$  import_db.rb SQLDB_001  SQLDB_001.tar`  
+Purpose: import all database tables using db2move import command. It can be used to restore to existing db or clone a new one.    
+Syntax:    `$  import_db.rb  db_name  db_backup_file_name`   
+Example: `$  import_db.rb SQLDB_001  SQLDB_001.tar.gz`  
+
 
 
 
