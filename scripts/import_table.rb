@@ -20,12 +20,18 @@ elsif (ARGV.length == 3 && total_db2_services==1)
   schema_name=ARGV[0]
   table_file_name=ARGV[1]
   import_mode_index=ARGV[2]
-elsif (ARGV.length < 3 && total_db2_services >1) 
+elsif (ARGV.length == 4 && total_db2_services==1) 
+  db_name=ARGV[0]
+  schema_name=ARGV[1]
+  table_file_name=ARGV[2]
+  import_mode_index=ARGV[3]
+
+  elsif (ARGV.length < 3 && total_db2_services >1) 
   print ("\nMore than 1 db detected, you must specify db_name as first parameter\n")
   usage()
 end
 
-if (ARGV.length >= 3)
+if (ARGV.length >= 3 && total_db2_services > 1)
   db_name=ARGV[0]   
   schema_name=ARGV[1] 
   table_file_name=ARGV[2]

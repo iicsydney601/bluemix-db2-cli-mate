@@ -19,6 +19,11 @@ if (ARGV.length == 3 && total_db2_services==1)
   schema_name=ARGV[0]
   table_name=ARGV[1]
   export_format=ARGV[2]
+elsif (ARGV.length == 4 && total_db2_services==1) 
+  db_name=ARGV[0]
+  schema_name=ARGV[1]
+  table_name=ARGV[2]
+  export_format=ARGV[3]
 elsif (ARGV.length < 3 && total_db2_services >1) 
   print ("\nMore than 1 db detected, you must specify db_name as first parameter\n")
   usage()
@@ -31,7 +36,7 @@ if (ARGV.length >= 3 && total_db2_services >1)
   export_format=ARGV[3]
 end
 
-if (total_db2_services == 1 && ARGV.length==3)  # only one SQLDB bound to the app
+if (total_db2_services == 1 && ARGV.length >=3)  # only one SQLDB bound to the app
   db_found=1
   db_name=json_db2[0]["name"]
   credentials = json_db2[0]["credentials"]
