@@ -8,4 +8,4 @@ applications:
   domain: mybluemix.net
   timeout: 180
   buildpack: https://github.com/iicsydney601/heroku-buildpack-multi.git
-  
+  no-route: true

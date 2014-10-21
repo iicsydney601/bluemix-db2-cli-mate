@@ -13,21 +13,29 @@ DB2climate includes the following packages:
 4. Dropbox API client
 5. A number of ruby scripts to ease the database management of SQLDBs 
 
-## What can you do with DB2climate##
-Current Bluemix SQLDB Managed Data Web Console suffers a number of limitations.
+## What you'll need to build DB2climate ##
 
-1. Not able to import/load a file with IXF format to database
+1. A Bluemix account [https://ace.ng.bluemix.net/](https://ace.ng.bluemix.net/)  
+2. Cloud foundry cf command line tool [https://github.com/cloudfoundry/cli](https://github.com/cloudfoundry/cli)  
+3. A terminal program with ssh capability such as babun or putty  
+4. A Dropbox account [http://www.dropbox.com/](http://www.dropbox.com/)  
+5. A Dropbox API app [https://www.dropbox.com/developers](https://www.dropbox.com/developers)  
+6. Some familiarity with db2 runtime commands is helpful   
+
+## What can you do with DB2climate##
+
+1. Import/load a file with IXF format to database
 [https://developer.ibm.com/answers/questions/21537/is-it-possible-to-import-ixf-data-files-to-sqldb-tables/](https://developer.ibm.com/answers/questions/21537/is-it-possible-to-import-ixf-data-files-to-sqldb-tables/)
-2. The SQLDB console does not have the export function.
+2. Export tables from SQLDB 
 [https://developer.ibm.com/answers/questions/20227/is-that-possible-to-download-data-or-table-ddl-from-sqldb-console/](https://developer.ibm.com/answers/questions/20227/is-that-possible-to-download-data-or-table-ddl-from-sqldb-console/)
-3. Not able to migrate data between SQLDB instances using backup image
+3. Migrate data between SQLDB instances using backup image
 [https://developer.ibm.com/answers/questions/21480/migrate-data-between-sqldb-instance-using-backup-image/](https://developer.ibm.com/answers/questions/21480/migrate-data-between-sqldb-instance-using-backup-image/)
-4. Not able to add non-ephemeral disk space to Bluemix (Bluemix restriction)
+4. Add non-ephemeral disk space to Bluemix 
 [https://developer.ibm.com/answers/questions/21000/adding-normal-disk-space-to-a-bluemix-app/](https://developer.ibm.com/answers/questions/21000/adding-normal-disk-space-to-a-bluemix-app/)
-5. Not able to sync data to SQLDB (Bluemix restriction)
+5. Sync data to SQLDB
 [https://developer.ibm.com/answers/questions/20958/sync-data-to-bluemix-sqldb/](https://developer.ibm.com/answers/questions/20958/sync-data-to-bluemix-sqldb/)
 
-DB2climate is designed to address these issues. It allows you to open a ssh connection to the application container which has DB2 runtime client, Dropbox CLI and API client preloaded and configured, therefore you can run all supported db2 commands against your SQLDBs and move data in and out of Bluemix using Dropbox cloud storage. 
+DB2climate allows you to open a ssh connection to the application container which has DB2 runtime client, Dropbox CLI and API client preloaded and configured, therefore you can run all supported db2 commands against your SQLDBs and move data in and out of Bluemix using Dropbox cloud storage. 
 
 ## Deploy DB2climate to Bluemix  ##
 
@@ -48,83 +56,48 @@ DB2climate uses Dropbox as persistent storage, therefore you will need to sign u
    `usage:    cf create-service SERVICE PLAN SERVICE_INSTANCE_NAME`  
    `example:  cf create-service sqldb sqldb_small SQLDB_001`     
 
-3. Create a git clone of this repository ...
+3. Create a git clone of this repository.  
+   `git clone https://hub.jazz.net/git/felixf/bluemix-db2-cli-mate`
 
-        git clone https://github.com/iicsydney601/bluemix-db2-cli-mate.git
-                                  or 
-        git clone https://hub.jazz.net/git/felixf/bluemix-db2-cli-mate 
-
-4. Navigate to the clone application directory.  
+4. Navigate to the clone application directory. 
    `cd bluemix-db2-cli-mate`
+
+5. From the cloned db2climate app directory, push the app without starting (**--no-start**) flag so that we can bind our SQLDB service before starting it.  Note: This is a console app, so we don't actually create an URL or host for it.
+    `usage:   cf push APP [--no-start]`  
+    `example: cf push db2climate --no-start `    
     
-5. Optionally, update the **`dropbox_api_keys.txt`** file with appropriate **App key** and **App secret**. By doing this before deployment, your keys setting is stored as part of droplet so you don't have re-enter each time the application restarts. If you choose not to do so at this stage, the first time you run the **dropbox-api** command you will be prompted to enter the keys. However, your keys setting can not survive the application restart.   
+6. Bind the SQLDB service to the new app  
+    `usage:  cf bind-service APP SERVICE_INSTANCE_NAME`      
+    `example: cf bind-service db2climate SQLDB_001`
 
-6.  From the cloned db2climate app directory, push the app without starting (**--no-start**) flag so that we can bind our SQLDB service before starting it.  
-
-    if you are using cf cli v6.3 or above, run the command below.  
-    `usage:   cf push APP [--no-start] --random-route`  
-    `example: cf push db2climate --no-start --random-route`    
-
-    If you are using an older version of cf cli, you will have to create a unique host/route during the push.  
-   `usage:  cf push APP [--no-start] -n unique_host`  
-  `example: cf push db2climate --no-start -n db2climate-FF`   
-
-7.  Bind the SQLDB service to the new app  
-
-     `usage:  cf bind-service APP SERVICE_INSTANCE_NAME`      
-   `example: cf bind-service db2climate SQLDB_001`
-
-
-8.  Start the app  
+7. Start the app  
    `usage:   cf start APP`    
    `example: cf start db2climate`
 
-Note: The starting process involves downloading and installing a number of packages. This includes Ruby runtime, DB2 v9.7 runtime client, Dropbox Linux client, Dropbox API client and tmate/tmux server. The whole package is nearly 400MB in size and it may take few minutes before the application fully up and running. It is normal to see multiple instances of messages "`0 of 1 instances running, 1 starting`" showing on your screen. Please be patient.
-
-    Using release configuration from last framework (Ruby/Rack).
-    -----> Uploading droplet (455M)
-    
-    0 of 1 instances running, 1 starting
-    0 of 1 instances running, 1 starting
-    0 of 1 instances running, 1 starting
-    0 of 1 instances running, 1 starting
-    0 of 1 instances running, 1 starting
-    0 of 1 instances running, 1 starting
-    0 of 1 instances running, 1 starting
-    1 of 1 instances running
-    
-    App started
-    
-    Showing health and status for app db2climate in org felixf@au1.ibm.com / space test as felixf@au1.ibm.com...
-    OK
-    
-    requested state: started
-    instances: 1/1
-    usage: 256M x 1 instances
-    urls: db2climate-sludgier-sunhat.mybluemix.net
-    
-     state sincecpumemory  disk
-    #0   running   2014-09-09 05:38:20 PM   0.0%   52.9M of 256M   360.8M of 2G
-
+Note: The starting process involves downloading and installing a number of packages. This includes Ruby runtime, DB2 v9.7 runtime client, Dropbox Linux client, Dropbox API client and tmate/tmux server. The whole package is close to 400MB in size and it may take few minutes before the application fully up and running. In addition, while Bluemix  might shows the application is up and running, the application initialization may still in process. You can verify from the disk usage of the application. A complete initialized application should be around 360MB in size. Anything above that suggests that the application is not ready. Please wait for 10 seconds and run the following command to verify.   
+  
+`cf app db2climate`
 
 That's it! DB2climate has now successfully deployed to the Bluemix cloud.
 
 
 ## ssh into DB2climate app container ##
-After the appliction is up and running, issue 
+After the app is up and running, we would like to ssh into the app container. To do that, we need to know the connection URL first. Issue 
     
-`cf files db2climate logs/stderr.log`
+`cf files db2climate logs/tmate.log`
 
-The last 4 lines of stderr.log should look like this
+The last 4 lines of tmate.log should look like this
 
     2014/09/08 12:04:06 Starting tmate...
     2014/09/08 12:04:06 1000
     2014/09/08 12:04:06 1000
     2014/09/08 12:04:07 U67RHUFbnmx2gpD41JIaRLVxw@sf.tmate.io
 
-The connection URL is at the last line of the log. The two "1000" are the height and width of your terminal followed by the connection URL.  
+The connection URL is at the last line of the log. The two "1000" are the height and width of your terminal followed by the connection URL. 
+ 
+**Tip**: If you don't see the "Starting tmate..." message at the bottom of the log, it means the application has yet to complete the initialization process, wait for 30 seocnds or so and run the "cf files" command again.  
 
-If you are using a Windows PC, you will need a cygwin like terminal program installed. I personally use **babun** windows shell which you can download it from [https://github.com/babun/babun](https://github.com/babun/babun) 
+If you are using a Windows PC, you will need a cygwin like terminal program installed. I personally use **babun** windows shell which you can download it from [https://github.com/babun/babun](https://github.com/babun/babun).  
 
 Warning: Prior attempting to make a ssh connection for the very first time, make sure you run the **ssh-keygen** program at the home directory, otherwise, you will get connection denied error.
 
@@ -159,9 +132,11 @@ After running the “ssh-keygen” program, you can ssh into the app container w
     { ~ }  »  ssh U67RHUFbnmx2gpD41JIaRLVxw@sf.tmate.io  
     vcap@182bbgv126r:~$`
 
+**Tip**: If you prefer to use putty, please refer to this blog on how to generate private keys and making connection. [https://www.ibm.com/developerworks/community/blogs/Dougclectica/entry/ssh_key_authentication_with_putty30?lang=en](https://www.ibm.com/developerworks/community/blogs/Dougclectica/entry/ssh_key_authentication_with_putty30?lang=en)
+
 ## Setup Dropbox as non-ephemeral storage ##
 
-As Bluemix warden container does not support persistent storage at the moment. As a result, all changes written to the container disk are lost if the application is stopped or restarted.  Therefore, we need some kind of persistent storage so we can store our database backups or exported tables.  In this article, I will show you how to use Dropbox as our non-ephemeral storage to get your data in and out of Bluemix. This is not the best solution but until Bluemix supports SoftLayer's Object Storage, it remains a decent workaround.
+By default, after deployment, the is no persistent storage available for the application.   As a result, all changes written to  disk are lost if the application is stopped or restarted. Therefore, we need some kind of persistent storage so we can store our database backups or exported tables. In this article, I will show you how to use Dropbox as our non-ephemeral storage to get your data in and out of Bluemix. This is not the only solution, but it is a quick one to get working.
 
 DB2climate supports two methods to access the Dropbox cloud storage. 
 ### Method 1- Dropbox Linux client: (not preferred) ###
@@ -183,23 +158,10 @@ Once you link the computer successfully, you would notice a "**DropBox**" folder
 Congratulations, you have just successfully setup a persistent storage to your application container. you can now transfer files in and out of our Bluemix containers with ease. Use “dropbox.py” script to control the Dropbox daemon such as start/stop and synchronization status.  
 
 ### Method 2- Dropbox API script (preferred method) ###
-DB2climate also come with a copy of Dropbox core API client installed. To use it, just run "**dropbox-api**" command. If you did not update the "`dropbox_api_keys.txt`" file before pushing the application, you will be prompted to enter the api keys. Next you need to select the appropriate "`Input Access Type`", you must match the input access type to your api app's "`Permission type`" when the app was created.  Then, cut and paste the URL on the screen to a browser; logon to your Dropbox account and click "`Allow`". Once you have done that, return to your ssh console and press enter to finish the setup.
+DB2climate comes with a copy of Dropbox core API client installed. To avoid having to enter Dropbox API keys each time the db2climate is restarted,  you can store the Dropbox API keys securely inside the SQLDB bound to the db2climate app.  Run “**set_dbox_api.rb**” script and follow the on screen prompt to enter the API key and API secret.  Next you need to select the appropriate "Access Type", you must match the access type to your api app's "Permission type" when the api's app was created. 
 
-    vcap@182bbgv126r:~$ dropbox-api  
-    Please Input API Key: do9qmztlbd0oj9o  
-    Please Input API Secret: fdt8xt7cm6gmfxp  
-    Please Input Access type  
-    a ... App folder - Your app only needs access to a single folder within the user's Dropbox 
-    f ... Full Dropbox - Your app needs access to the user's entire Dropbox  
-    [a or f]: a  
-    To link this computer to a dropbox account, visit the following url, login in and click the Allow button 
- 
-    URL: https://www.dropbox.com/1/oauth/authorize?oauth_token=9L1reF1b1ZnC6r0V&oauth_callback=  
-
-    Link completed==>?  
-   
-
-
+Having stored the Dropbox API keys to the database, we can start using the dropbox-api program. To use it, run **dropbox-api** command. Cut and paste the URL on the screen to a browser; logon to your Dropbox account and click "Allow". Once you have done that, return to your ssh console and press enter to finish the setup.
+    
 Congratulations, you have just successfully link your app container to your Dropbox account. The advantage of using Dropbox API over Dropbox Linux client is that Dropbox API does not synchronize with cloud storage automatically therefore you are safe to use your existing Dropbox account. Run "`dropbox.api help`" to get a list of available commands. 
 For instance, to upload the local.tar file from the container to the Dropbox's root directory, we would issue: 
 
@@ -211,7 +173,7 @@ To list all the files in our dropbox account, we would issue:
 
 ## Use DB2climate as a DB2 client   ##
 
-You can run all supported db2 commands against your SQLDBs straight away after ssh into the warden container. All TCPIP nodes and databases would have automatically cataloged for you. In addition, in order to avoid users to keep referring to the VCAP_SERVICE file for db credentials, a number of scripts have been developed to help you manage your database(s) with ease. 
+You can run all supported db2 commands against your SQLDBs straight away after ssh into the warden container. All TCPIP nodes and databases were automatically cataloged for you. In addition, in order to avoid users having to refer to the VCAP_SERVICE file for db credentials, a number of scripts have been developed to help you manage your database(s) with ease. 
 
 ### General purpose scripts ###
 Scrpt Name:	ls_db.rb  
@@ -270,7 +232,7 @@ Output file name is `country.ixf` in the current directory
 Example 2:  `$ export_table.rb SQLDB_002 BX CITY del` (multi db instances bound to the app)  
 Output file name is `CITY.del` in the current directory
 
-Script Name: import_table.rb  
+Script Name: import__table.rb   
 Purpose: import a table in supported formats (ixf or del) with all supported import mode  
 syntax:   `$   import_table.rb [db_name] schema_name table_file_name [import_mode]`  
 Supported Import mode are: `1=insert(default), 2=insert_update, 3=replace, 4=replace_create (ixf only), 5=create (ixf only)`    
@@ -349,6 +311,34 @@ Syntax:    `$  import_db.rb  db_name  db_backup_file_name`
 Example: `$  import_db.rb SQLDB_001  SQLDB_001.tar.gz`  
 
 
+## Appendix   DB2climate tips and known issues ##
+#### Tips: 
+
+1.Bluemix allows multiple apps bind to the same service and vice versa.  Therefore, DB2climate can be used as a utility app bind to the same SQLDB service that your primary app binds to. As the screen shot depicted below, we have bound the SQLDB_001 instance to both Bluemix101-FF and DB2climate app. In this example, Bluemix101-FF is our  primary app which uses the SQLDB_001 as its backend database whereas DB2climate is our utility app that is used to help us managing the DB instance.
+
+    name  		service   	plan 		 	bound apps
+    SQLDB_001 	sqldb 		sqldb_small   	db2climate, Bluemix101-FF
+
+2.When you finishing using the terminal, just shutdown your terminal program by clicking the "x" icon and confirm "OK". By doing this, your tmate session will be left running so you can reconnect to it using the same tmate credentials. If you type "exit" at the Tmate terminal, it will shutdown the Tmate server, as a result you will have to restart the db2climate application which will generate a new tmate credential. On top of that, you will have to re-setup the Dropbox account and re-catalog all the databases again. 
+When using the disconnect method, you can reconnect back to the container using the same tmate credential. All changes you made last session remain intact. Effectively resumes from your last session. 
+
+#### Known issues: ####
+1. If you  unbind your SQLDB instance from the DB2climate app and then later rebind it, you will no longer be able to run some of the db2 command successfully. While some commands such as "db2 get dbm cfg", "db2 get authorization"  continue to work,  other commands like "db2 list tables" or "db2 select * from ..." will yield error like the sample screen shot below.  
+ 
+    `vcap@182uup7tc8i:~$ db2 list tables`
+    `SQL0727N An error occurred during implicit system action type "1".`
+    `Information returned for the error includes SQLCODE "-551", SQLSTATE "42501"`
+    `and message token "VEGTTEPX|SELECT|SYSCAT.ROUTINES". SQLSTATE=56098`  
+    `vcap@182uup7tc8i:~$`
+
+    Because of the above restriction, you should not unbind your SQLDB instance from the DB2climate application at any time. If you accidentally have, the only way to restore your ability to manage your SQLDB instance via DB2climate is to delete your SQLDB instance, re-create a new instance and restore the database from your Dropbox cloud storage backup. 
+
+2.  Occasionally, when you deploy or start the DB2climate app, the tmate server might not get initialized properly and as a result tmate url may not be revealed. If that happens to you, simply stop and restart the DB2climate app should fix it.
+
+        2014-09-15 06:26:14 (1.01 MB/s) - `/app/bin/dropbox.py' saved [111519/111519]  
+    	2014/09/15 06:26:17 Starting tmate...  
+    	2014/09/15 06:26:17 1000  
+    	2014/09/15 06:26:17 1000  
 
 
 ## License ##

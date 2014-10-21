@@ -1,4 +1,4 @@
-# db2climate v2.0 felixf@au1.ibm.com
+# db2climate v2.1 felixf@au1.ibm.com  06/10/2014
 require 'rubygems'
 require 'sinatra'
 require 'json'
@@ -48,8 +48,7 @@ system("tar xf tmate.tar --strip-components=1")
 system("rm tmate.tar")
 system("echo Install Dropbox API client...")
 system("ln -s /app/local/bin/dropbox-api /app/bin/dropbox-api")
-system('perl -p -i -e "s/\r\n/\n/g" /app/dropbox_api_keys.txt')
 system("chmod 755 /app/bin/* ")
 system("chmod 755 #{fname}")
 system("/app/#{fname}")
-system("/app/bin/launch")
+system("/app/bin/launch 2>/home/vcap/logs/tmate.log")
